@@ -42,15 +42,11 @@ const cartReducer = (state, action) => {
     const updatedTotalAmount = state.totalAmount - existingItem.price;
     let updatedItems;
     if (existingItem.amount === 1) {
-      // if only 1 item present of that item, then only decrease
-      // its price and amount by 1
       updatedItems = state.items.filter((item) => item.id !== action.id);
     } else {
-      // if it's the last item of that item, then totally remove it
       const updatedItem = { ...existingItem, amount: existingItem.amount - 1 };
       updatedItems = [...state.items];
       updatedItems[existingCartItemIndex] = updatedItem;
-      // 18 number video
     }
 
     return {
@@ -58,11 +54,14 @@ const cartReducer = (state, action) => {
       totalAmount: updatedTotalAmount,
     };
   }
+  if (action.type === "CLEAR") {
+    return defaultCartState;
+  }
 
   return defaultCartState;
 };
 
-export const CartProvider = (props) => {
+const CartProvider = (props) => {
   const [cartState, dispatchCartAction] = useReducer(
     cartReducer,
     defaultCartState
@@ -76,11 +75,16 @@ export const CartProvider = (props) => {
     dispatchCartAction({ type: "REMOVE", id: id });
   };
 
+  const clearCartHandler = () => {
+    dispatchCartAction({ type: "CLEAR" });
+  };
+
   const cartContext = {
     items: cartState.items,
     totalAmount: cartState.totalAmount,
     addItem: addItemToCartHandler,
     removeItem: removeItemFromCartHandler,
+    clearCart: clearCartHandler,
   };
 
   return (
@@ -90,4 +94,4 @@ export const CartProvider = (props) => {
   );
 };
 
-// export default CartProvider;
+export default CartProvider;
